@@ -45,27 +45,26 @@
         }
 
         // Event handler for when speech recognition receives a result
-        // Event handler for when speech recognition receives a result
-// Event handler for when speech recognition receives a result
-recognition.onresult = function(event) {
-    const recognizedText = event.results[0][0].transcript;
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
+        recognition.onresult = function(event) {
+            const recognizedText = event.results[0][0].transcript;
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
 
-    const usernameRegex = /username is (.+)/i;
-    const passwordRegex = /password is (.+)/i;
+            const usernameRegex = /username is (.+)/i;
+            const passwordRegex = /password is (.+)/i;
 
-    if (usernameRegex.test(recognizedText)) {
-        const username = recognizedText.match(usernameRegex)[1].replace('.', '').trim();
-        usernameInput.value = username;
-    } else if (passwordRegex.test(recognizedText)) {
-        const password = recognizedText.match(passwordRegex)[1].replace('.', '').trim();
-        passwordInput.value = password;
-    }
+            if (usernameRegex.test(recognizedText)) {
+                const username = recognizedText.match(usernameRegex)[1].replace('.', '').trim();
+                usernameInput.value = username;
+            } else if (passwordRegex.test(recognizedText)) {
+                const password = recognizedText.match(passwordRegex)[1].replace('.', '').trim();
+                passwordInput.value = password;
+            }
 
-    const recognizedTextElement = document.getElementById('recognized-text');
-    recognizedTextElement.textContent = 'Recognized Text: ' + recognizedText.replace('.', '');
-};
+            const recognizedTextElement = document.getElementById('recognized-text');
+            recognizedTextElement.textContent = 'Recognized Text: ' + recognizedText.replace('.', '');
+        };
+
         // Event handler for when speech recognition encounters an error
         recognition.onerror = function(event) {
             console.log('Speech recognition error occurred:', event.error);
@@ -83,26 +82,29 @@ recognition.onresult = function(event) {
             console.log('Username:', username);
             console.log('Password:', password);
             
-            // Uncomment the following line to submit the form using AJAX
-            // submitForm();
-        });
-
-        // Function to submit the form using AJAX
-        function submitForm() {
-            // Get the form data
-            const form = document.getElementById('signup-form');
-            const formData = new FormData(form);
+            // Create a FormData object and append the form data
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
             
             // Make an AJAX request to submit the form data
             const xhr = new XMLHttpRequest();
-            xhr.open(form.method, form.action);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            xhr.open('POST', '{% url 'signup' %}');
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken')); // Include the CSRF token
+            xhr.onload = function() {
+                if (xhr.status === 200) {
                     console.log('Form submitted successfully!');
                     // You can perform any further actions here after the form is submitted successfully.
+                    window.location.href = '/signup_success/';
                 }
             };
             xhr.send(formData);
+        });
+
+        // Function to get the CSRF token from cookies
+        function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
         }
     </script>
 </body>
