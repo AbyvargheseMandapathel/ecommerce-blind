@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <p>Please speak your login command:</p>
+        <button id="listen-button" type="button">Listen</button>
+        <br>
+        <input type="submit" value="Login">
+    </form>
+
+    <script>
+        // JavaScript code to handle voice input
+        var listenButton = document.getElementById('listen-button');
+        listenButton.addEventListener('click', function () {
+            var recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                var command = event.results[0][0].transcript;
+                var usernameField = document.getElementById('username');
+                usernameField.value = command;
+                recognition.stop();
+            };
+        });
+    </script>
+</body>
+</html>

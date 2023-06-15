@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+
+    <title>Signup</title>
+</head>
+<body>
+    <h1>Signup</h1>
+    <button id="start-listening">Start Listening</button>
+    <button id="stop-listening">Stop Listening</button>
+    <form id="signup-form" action="{% url 'signup' %}" method="post">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <br>
+        <input type="submit" value="Signup">
+    </form>
+    
+    <div id="recognized-text"></div>
+    
+    <script>
+        // Get the start and stop listening button elements
+        const startListeningBtn = document.getElementById('start-listening');
+        const stopListeningBtn = document.getElementById('stop-listening');
+
+        // Add event listeners to the buttons
+        startListeningBtn.addEventListener('click', startListening);
+        stopListeningBtn.addEventListener('click', stopListening);
+
+        // Initialize the recognition instance
+        const recognition = new webkitSpeechRecognition();
+
+        // Function to start listening for voice input
+        function startListening() {
+            recognition.start();
+        }
+
+        // Function to stop listening for voice input
+        function stopListening() {
+            recognition.stop();
+        }
+
+        // Event handler for when speech recognition receives a result
+        // Event handler for when speech recognition receives a result
+// Event handler for when speech recognition receives a result
+recognition.onresult = function(event) {
+    const recognizedText = event.results[0][0].transcript;
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+
+    const usernameRegex = /username is (.+)/i;
+    const passwordRegex = /password is (.+)/i;
+
+    if (usernameRegex.test(recognizedText)) {
+        const username = recognizedText.match(usernameRegex)[1].replace('.', '').trim();
+        usernameInput.value = username;
+    } else if (passwordRegex.test(recognizedText)) {
+        const password = recognizedText.match(passwordRegex)[1].replace('.', '').trim();
+        passwordInput.value = password;
+    }
+
+    const recognizedTextElement = document.getElementById('recognized-text');
+    recognizedTextElement.textContent = 'Recognized Text: ' + recognizedText.replace('.', '');
+};
+        // Event handler for when speech recognition encounters an error
+        recognition.onerror = function(event) {
+            console.log('Speech recognition error occurred:', event.error);
+        };
+
+        // Event listener for form submission
+        document.getElementById('signup-form').addEventListener('submit', function(event) {
+            // Prevent the form from being submitted automatically
+            event.preventDefault();
+            
+            // You can add any additional validation or processing here before submitting the form using AJAX or other methods.
+            // For demonstration purposes, we will log the form values to the console.
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            console.log('Username:', username);
+            console.log('Password:', password);
+            
+            // Uncomment the following line to submit the form using AJAX
+            // submitForm();
+        });
+
+        // Function to submit the form using AJAX
+        function submitForm() {
+            // Get the form data
+            const form = document.getElementById('signup-form');
+            const formData = new FormData(form);
+            
+            // Make an AJAX request to submit the form data
+            const xhr = new XMLHttpRequest();
+            xhr.open(form.method, form.action);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    console.log('Form submitted successfully!');
+                    // You can perform any further actions here after the form is submitted successfully.
+                }
+            };
+            xhr.send(formData);
+        }
+    </script>
+</body>
+</html>
