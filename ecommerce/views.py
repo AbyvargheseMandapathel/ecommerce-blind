@@ -1,21 +1,30 @@
 import pyttsx3
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, login as auth_login
+
 
 User = get_user_model()
 
-def login(request):
+def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
-        # Process the username and password and authenticate the user
-        # Your login logic goes here
-        
-        return render(request, 'login_success.html')
+
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            # User credentials are valid, log in the user
+            auth_login(request, user)
+            return redirect('login_success')
+        else:
+            # User credentials are invalid, show an error message or redirect to login page with error
+            return render(request, 'login.html', {'error': 'Invalid credentials'})
     else:
         return render(request, 'login.html')
-
+    
+    
 def signup(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -35,3 +44,10 @@ def signup(request):
     
 def signup_success(request):
     return render(request, 'signup_success.html')
+
+def login_success(request):
+    # Assuming you have retrieved the username from the logged-in user
+    username = request.user.username
+    
+    # Render the template with the username in the context
+    return render(request, 'login_success.html', {'username': username})
