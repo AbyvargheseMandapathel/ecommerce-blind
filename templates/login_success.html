@@ -6,6 +6,11 @@
 <body>
     <h1>Login Successful</h1>
     <p>You have successfully logged in!</p>
-    <p>Hi:{{ username }}</p>
+    <p>Hi: {{ username }}</p>
+    
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Logout">
+    </form>
 </body>
 </html>
