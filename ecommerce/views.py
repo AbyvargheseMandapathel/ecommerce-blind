@@ -5,9 +5,8 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib import messages
 from django.contrib.messages import get_messages
-
-
-
+from django.urls import reverse
+from products.views import home
 
 User = get_user_model()
 
@@ -26,7 +25,7 @@ def login_view(request):
             engine = pyttsx3.init()
             engine.say(f"{username} successfully logged in.")
             engine.runAndWait()
-            return redirect('login_success')
+            return redirect(reverse('home'))
         else:
             # Text-to-speech
             engine = pyttsx3.init()
@@ -34,13 +33,11 @@ def login_view(request):
             engine.runAndWait()
             # User credentials are invalid, show an error message and redirect to login page with error
             messages.error(request, 'Invalid credentials')
-            # return redirect('login')
     else:
         # Clear any existing error messages
         storage = get_messages(request)
         storage.used = True
-        return render(request, 'login.html')
-
+    return render(request, 'login.html')
     
     
 def signup(request):
@@ -68,7 +65,7 @@ def login_success(request):
     username = request.user.username
     
     # Render the template with the username in the context
-    return render(request, 'login_success.html', {'username': username})
+    return render(request, 'products\home.html')
 
 def logout(request):
     auth_logout(request)
