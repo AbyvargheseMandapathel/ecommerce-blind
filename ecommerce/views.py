@@ -56,7 +56,7 @@ def signup(request):
         return render(request, 'signup.html')
 
 def signup_success(request):
-    return render(request, 'signup_success.html')
+    return redirect('home')
 
 def home(request):
     # Assuming you have retrieved the username from the logged-in user
