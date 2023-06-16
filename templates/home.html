@@ -862,6 +862,45 @@
  </div>
  <!--end quick view-->
 
+ <!-- microphone -->
+ <button id="voiceButton">Click to Speak</button>
+ <script>
+    const voiceButton = document.getElementById('voiceButton');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+  
+    voiceButton.addEventListener('click', () => {
+      recognition.start();
+    });
+  
+    recognition.addEventListener('result', (event) => {
+      const transcript = event.results[0][0].transcript;
+      sendVoiceInput(transcript);
+    });
+  
+    function sendVoiceInput(transcript) {
+      // Send the voice input to the server using AJAX or fetch API
+      fetch('/process-voice-input/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: transcript }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response from the server
+          // Update the UI with the search results
+        })
+        .catch(error => {
+          // Handle any errors
+        });
+    }
+  </script>
+  
+ <!-- microphone -->
+
+
 
  <!--Start Back To Top Button-->
  <a href="javaScript:;" class="back-to-top"><i class="bi bi-arrow-up"></i></a>

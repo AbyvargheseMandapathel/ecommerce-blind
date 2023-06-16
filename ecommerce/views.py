@@ -6,6 +6,9 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib import messages
 from django.contrib.messages import get_messages
 from .models import Product
+from django.http import JsonResponse
+from django.db.models import Q
+
 
 
 User = get_user_model()
@@ -80,3 +83,27 @@ def home(request):
 def logout(request):
     auth_logout(request)
     return redirect('login')  # Replace 'login' with the URL name of your login page
+
+def search_products(query):
+    # Perform the search query on the Product model
+    # You can customize the search logic based on your needs
+    # This example searches for products whose name or description contains the query
+    results = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+    
+    # Process the search results or format them as needed
+    # For example, you can serialize the results to JSON or extract specific fields
+    
+    # Return the processed results
+    return results
+
+def process_voice_input(request):
+    if request.method == 'POST':
+        query = request.POST.get('query')
+        # Perform the search based on the query
+        # Retrieve matching products from the database
+        # Process the search results as needed
+        results = search_products(query)
+        # Return the results as a JSON response
+        return JsonResponse(results, safe=False)
+    
+    
