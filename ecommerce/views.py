@@ -1,10 +1,12 @@
 import pyttsx3
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib import messages
 from django.contrib.messages import get_messages
+from .models import Product
+
 
 User = get_user_model()
 
@@ -58,12 +60,22 @@ def signup(request):
 def signup_success(request):
     return redirect('home')
 
+def product_details(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    return render(request, 'product_details.html', {'product': product})
+
 def home(request):
-    # Assuming you have retrieved the username from the logged-in user
     username = request.user.username
 
-    # Render the template with the username in the context
-    return render(request, 'home.html', {'username': username})
+    # Retrieve products from the database
+    products = Product.objects.all()
+
+    context = {
+        'username': username,
+        'products': products,
+    }
+
+    return render(request, 'home.html', context)
 
 def logout(request):
     auth_logout(request)
