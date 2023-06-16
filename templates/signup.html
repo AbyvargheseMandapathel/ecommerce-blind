@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
-
+    <style>
+        #microphone {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: red;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+        }
+    </style>
     <title>Signup</title>
 </head>
 <body>
     <h1>Signup</h1>
-    <button id="start-listening">Start Listening</button>
-    <button id="stop-listening">Stop Listening</button>
     <form id="signup-form" action="{% url 'signup' %}" method="post">
         {% csrf_token %}
+        <p>Please speak your signup command:</p>
         <label for="username">Username:</label>
         <input type="text" name="username" id="username" required>
         <br>
@@ -19,29 +34,28 @@
         <br>
         <input type="submit" value="Signup">
     </form>
-    
-    <div id="recognized-text"></div>
-    
+    <p id="recognized-text"></p>
+
+    <div id="microphone" onclick="toggleRecording()">
+        <i class="fas fa-microphone"></i>
+    </div>
+
     <script>
-        // Get the start and stop listening button elements
-        const startListeningBtn = document.getElementById('start-listening');
-        const stopListeningBtn = document.getElementById('stop-listening');
-
-        // Add event listeners to the buttons
-        startListeningBtn.addEventListener('click', startListening);
-        stopListeningBtn.addEventListener('click', stopListening);
-
         // Initialize the recognition instance
         const recognition = new webkitSpeechRecognition();
 
         // Function to start listening for voice input
         function startListening() {
             recognition.start();
+            isRecording = true;
+            updateUI();
         }
 
         // Function to stop listening for voice input
         function stopListening() {
             recognition.stop();
+            isRecording = false;
+            updateUI();
         }
 
         // Event handler for when speech recognition receives a result
@@ -63,6 +77,10 @@
 
             const recognizedTextElement = document.getElementById('recognized-text');
             recognizedTextElement.textContent = 'Recognized Text: ' + recognizedText.replace('.', '');
+
+            if (recognizedText.toLowerCase().includes('create')) {
+                document.getElementById('signup-form').submit();
+            }
         };
 
         // Event handler for when speech recognition encounters an error
@@ -70,23 +88,50 @@
             console.log('Speech recognition error occurred:', event.error);
         };
 
+        // Function to toggle recording
+        let isRecording = false;
+
+        function toggleRecording() {
+            if (isRecording) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        // Function to update the UI based on recording state
+        function updateUI() {
+            const microphoneIcon = document.getElementById('microphone');
+            const microphoneElement = microphoneIcon.querySelector('i');
+
+            if (isRecording) {
+                microphoneElement.classList.remove('fa-microphone');
+                microphoneElement.classList.add('fa-stop');
+                microphoneIcon.style.backgroundColor = 'red';
+            } else {
+                microphoneElement.classList.remove('fa-stop');
+                microphoneElement.classList.add('fa-microphone');
+                microphoneIcon.style.backgroundColor = 'gray';
+            }
+        }
+
         // Event listener for form submission
         document.getElementById('signup-form').addEventListener('submit', function(event) {
             // Prevent the form from being submitted automatically
             event.preventDefault();
-            
+
             // You can add any additional validation or processing here before submitting the form using AJAX or other methods.
             // For demonstration purposes, we will log the form values to the console.
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             console.log('Username:', username);
             console.log('Password:', password);
-            
+
             // Create a FormData object and append the form data
             const formData = new FormData();
             formData.append('username', username);
             formData.append('password', password);
-            
+
             // Make an AJAX request to submit the form data
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '{% url 'signup' %}');
